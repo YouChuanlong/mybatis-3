@@ -228,8 +228,12 @@ public class XPathParser {
     }
   }
 
+  /**
+   * 封装文档构造工厂
+   */
   private Document createDocument(InputSource inputSource) {
     // important: this must only be called AFTER common constructor
+    // 必须要在公用构造调用后才能
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -265,6 +269,7 @@ public class XPathParser {
     }
   }
 
+  // 通用构造，为了代码复用
   private void commonConstructor(boolean validation, Properties variables, EntityResolver entityResolver) {
     this.validation = validation;
     this.entityResolver = entityResolver;

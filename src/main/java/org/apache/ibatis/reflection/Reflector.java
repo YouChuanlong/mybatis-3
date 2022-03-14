@@ -51,16 +51,25 @@ import org.apache.ibatis.util.MapUtil;
 public class Reflector {
 
   private final Class<?> type;
+
   private final String[] readablePropertyNames;
   private final String[] writablePropertyNames;
+
+  // 装反射调用的方法
   private final Map<String, Invoker> setMethods = new HashMap<>();
   private final Map<String, Invoker> getMethods = new HashMap<>();
+
+  // 装返回值或者参数类型
   private final Map<String, Class<?>> setTypes = new HashMap<>();
   private final Map<String, Class<?>> getTypes = new HashMap<>();
+
+  // 默认构造方法
   private Constructor<?> defaultConstructor;
 
+  // 不区分大小
   private Map<String, String> caseInsensitivePropertyMap = new HashMap<>();
 
+  // 通过一系列操作获取值，初始化
   public Reflector(Class<?> clazz) {
     type = clazz;
     addDefaultConstructor(clazz);
@@ -78,24 +87,37 @@ public class Reflector {
     }
   }
 
+  // 获取默认构造参数
   private void addDefaultConstructor(Class<?> clazz) {
     Constructor<?>[] constructors = clazz.getDeclaredConstructors();
     Arrays.stream(constructors).filter(constructor -> constructor.getParameterTypes().length == 0)
       .findAny().ifPresent(constructor -> this.defaultConstructor = constructor);
   }
 
+  // 获取 Getter方法
   private void addGetMethods(Method[] methods) {
+    // 存放与父类有冲突 Getter 方法,注意了，这里value的List，可变的参数
     Map<String, List<Method>> conflictingGetters = new HashMap<>();
+
+    // 判断是否为Getter方法最基本的条件：没有方法参数并且是包含 get/is 的方法名
     Arrays.stream(methods).filter(m -> m.getParameterTypes().length == 0 && PropertyNamer.isGetter(m.getName()))
       .forEach(m -> addMethodConflict(conflictingGetters, PropertyNamer.methodToProperty(m.getName()), m));
+
+    // 解决 Getter 冲突
     resolveGetterConflicts(conflictingGetters);
   }
 
+  // 解决 Getter 冲突
   private void resolveGetterConflicts(Map<String, List<Method>> conflictingGetters) {
+
+    // 遍历有冲突的方法
     for (Entry<String, List<Method>> entry : conflictingGetters.entrySet()) {
       Method winner = null;
+
       String propName = entry.getKey();
+
       boolean isAmbiguous = false;
+
       for (Method candidate : entry.getValue()) {
         if (winner == null) {
           winner = candidate;
@@ -269,12 +291,17 @@ public class Reflector {
    * We use this method, instead of the simpler <code>Class.getMethods()</code>,
    * because we want to look for private methods as well.
    *
+   * 这个方法返回一个数组，包含所有的方法，包括在此类声明的和父类的！
+   * 不直接用<code>Class.getMethods()</code>，是因为这个方法不能直接拿到私有方法。
    * @param clazz The class
    * @return An array containing all methods in this class
    */
   private Method[] getClassMethods(Class<?> clazz) {
+    // 唯一的方法，这里的唯一是指：
     Map<String, Method> uniqueMethods = new HashMap<>();
     Class<?> currentClass = clazz;
+
+    // 遍历此类，并且向父类遍历
     while (currentClass != null && currentClass != Object.class) {
       addUniqueMethods(uniqueMethods, currentClass.getDeclaredMethods());
 
@@ -284,18 +311,21 @@ public class Reflector {
       for (Class<?> anInterface : interfaces) {
         addUniqueMethods(uniqueMethods, anInterface.getMethods());
       }
-
+      // 往父类去遍历
       currentClass = currentClass.getSuperclass();
     }
 
     Collection<Method> methods = uniqueMethods.values();
-
+    // 返回为一个数组
     return methods.toArray(new Method[0]);
   }
 
+  // 把唯一的方法找到装入第一个map里
   private void addUniqueMethods(Map<String, Method> uniqueMethods, Method[] methods) {
+
     for (Method currentMethod : methods) {
       if (!currentMethod.isBridge()) {
+        // 生成方法签名，方法签名将作为 uniqueMethods的 KEY
         String signature = getSignature(currentMethod);
         // check to see if the method is already known
         // if it is known, then an extended class must have
@@ -307,6 +337,7 @@ public class Reflector {
     }
   }
 
+  // 获取方法签名：void#setId:java.lang.Object
   private String getSignature(Method method) {
     StringBuilder sb = new StringBuilder();
     Class<?> returnType = method.getReturnType();
@@ -315,6 +346,8 @@ public class Reflector {
     }
     sb.append(method.getName());
     Class<?>[] parameters = method.getParameterTypes();
+
+    // 参数遍历，多个参数用“逗号”分割
     for (int i = 0; i < parameters.length; i++) {
       sb.append(i == 0 ? ':' : ',').append(parameters[i].getName());
     }

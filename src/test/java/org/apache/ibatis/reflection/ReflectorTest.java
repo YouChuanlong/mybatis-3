@@ -27,8 +27,14 @@ import org.apache.ibatis.reflection.invoker.Invoker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+/**
+ * 反射
+ */
 class ReflectorTest {
 
+  /**
+   * 获取Getter/Setter的类型
+   */
   @Test
   void testGetSetterType() {
     ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
