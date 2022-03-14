@@ -41,6 +41,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
+ * <p>XML解析器</p>
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
