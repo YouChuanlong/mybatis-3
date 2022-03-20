@@ -60,6 +60,11 @@ public class TypeParameterResolver {
     Type returnType = method.getGenericReturnType();
     Class<?> declaringClass = method.getDeclaringClass();
     return resolveType(returnType, srcType, declaringClass);
+
+    /*
+     * 小问题：  method.getGenericReturnType() VS method.getReturnType()
+     * - 一个返回是 Type 一个是返回 Class
+     */
   }
 
   /**

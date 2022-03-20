@@ -43,6 +43,7 @@ import org.apache.ibatis.reflection.property.PropertyNamer;
 import org.apache.ibatis.util.MapUtil;
 
 /**
+ * 反射解析器
  * This class represents a cached set of class definition information that
  * allows for easy mapping between property names and getter/setter methods.
  *
@@ -55,7 +56,7 @@ public class Reflector {
   private final String[] readablePropertyNames;
   private final String[] writablePropertyNames;
 
-  // 装反射调用的方法
+  // 装反射调用方法对象： Invoker，需要执行方法的时候，直接用 get invoker去调用方法即可
   private final Map<String, Invoker> setMethods = new HashMap<>();
   private final Map<String, Invoker> getMethods = new HashMap<>();
 
@@ -90,6 +91,7 @@ public class Reflector {
   // 获取默认构造参数
   private void addDefaultConstructor(Class<?> clazz) {
     Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+    // 默认无参构造
     Arrays.stream(constructors).filter(constructor -> constructor.getParameterTypes().length == 0)
       .findAny().ifPresent(constructor -> this.defaultConstructor = constructor);
   }
@@ -107,7 +109,7 @@ public class Reflector {
     resolveGetterConflicts(conflictingGetters);
   }
 
-  // 解决 Getter 冲突
+  // 解决 Getter 冲突,最终的目的就是找到冲突方法中最具体 returnType
   private void resolveGetterConflicts(Map<String, List<Method>> conflictingGetters) {
 
     // 遍历有冲突的方法
@@ -116,20 +118,33 @@ public class Reflector {
 
       String propName = entry.getKey();
 
+      // 如果不能明确，会去处理 addGetMethod
       boolean isAmbiguous = false;
 
       for (Method candidate : entry.getValue()) {
         if (winner == null) {
+          // 第一次循环一定是走这里
           winner = candidate;
           continue;
         }
+
+        /*
+         * java.lang.reflect.Method#getReturnType：返回这个方法的返回值
+         * Returns a Class object that represents the formal return type of the method represented by this Method object.
+         */
+        // 最终的冲突获胜者返回类型
         Class<?> winnerType = winner.getReturnType();
+        // 候选者的返回类型
         Class<?> candidateType = candidate.getReturnType();
+        // 类型相同
         if (candidateType.equals(winnerType)) {
+
+          // 疑问：如果两个相同的类型呢？ 非boolean的
           if (!boolean.class.equals(candidateType)) {
             isAmbiguous = true;
             break;
           } else if (candidate.getName().startsWith("is")) {
+            // boolean类型返回值
             winner = candidate;
           }
         } else if (candidateType.isAssignableFrom(winnerType)) {
@@ -141,17 +156,34 @@ public class Reflector {
           break;
         }
       }
+      /*
+       * java.lang.Class#isAssignableFrom：确定是否为这个类的父类或者接口
+       * Determines if the class or interface represented by this Class object is either the same as,
+       * or is a superclass or superinterface of,
+       * the class or interface represented by the specified Class parameter.
+       */
+
+
+      // 添加到实例的一些成员中
       addGetMethod(propName, winner, isAmbiguous);
     }
   }
 
   private void addGetMethod(String name, Method method, boolean isAmbiguous) {
+
+    // 如果明确将会创建，方法调用对象：MethodInvoker（）
     MethodInvoker invoker = isAmbiguous
         ? new AmbiguousMethodInvoker(method, MessageFormat.format(
             "Illegal overloaded getter method with ambiguous type for property ''{0}'' in class ''{1}''. This breaks the JavaBeans specification and can cause unpredictable results.",
             name, method.getDeclaringClass().getName()))
         : new MethodInvoker(method);
+
+    // Map getMethods 是在维护，要用的时候直接 get 然后 用 invoker去调用方法即可： 方法名, Invoker
     getMethods.put(name, invoker);
+
+    // Type 是 通用类型的接口，Class 也是它的类,它包括的了原生的类型。。。 下面为 API 文档：
+    // Type is the common superinterface for all types in the Java programming language.
+    // These include raw types, parameterized types, array types, type variables and primitive types.
     Type returnType = TypeParameterResolver.resolveReturnType(method, type);
     getTypes.put(name, typeToClass(returnType));
   }

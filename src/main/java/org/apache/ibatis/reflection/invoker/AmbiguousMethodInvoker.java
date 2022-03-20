@@ -20,9 +20,14 @@ import java.lang.reflect.Method;
 
 import org.apache.ibatis.reflection.ReflectionException;
 
+/**
+ * 不明确的方法调用，这个类实际上没有什么功能，就是异常处理
+ * 这个类只有在 Reflector 类中有调用的
+ */
 public class AmbiguousMethodInvoker extends MethodInvoker {
   private final String exceptionMessage;
 
+  // 只有带参构造传递方法对象以及异常信息
   public AmbiguousMethodInvoker(Method method, String exceptionMessage) {
     super(method);
     this.exceptionMessage = exceptionMessage;
@@ -30,6 +35,8 @@ public class AmbiguousMethodInvoker extends MethodInvoker {
 
   @Override
   public Object invoke(Object target, Object[] args) throws IllegalAccessException, InvocationTargetException {
+    // 调用就会抛异常的哈！
+    // 这个异常是MyBatis自己定义的一个运行时异常
     throw new ReflectionException(exceptionMessage);
   }
 }
