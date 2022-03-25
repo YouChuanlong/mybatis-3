@@ -203,10 +203,13 @@ public class Reflector {
   }
 
   private void resolveSetterConflicts(Map<String, List<Method>> conflictingSetters) {
+
+    // 循环遍历
     for (Entry<String, List<Method>> entry : conflictingSetters.entrySet()) {
       String propName = entry.getKey();
       List<Method> setters = entry.getValue();
       Class<?> getterType = getTypes.get(propName);
+      // Getter 是否为不明确的
       boolean isGetterAmbiguous = getMethods.get(propName) instanceof AmbiguousMethodInvoker;
       boolean isSetterAmbiguous = false;
       Method match = null;
@@ -227,23 +230,30 @@ public class Reflector {
     }
   }
 
+  // 找到最合适 Setter 方法
   private Method pickBetterSetter(Method setter1, Method setter2, String property) {
     if (setter1 == null) {
       return setter2;
     }
+
+    // 两个 Setter 方法的形参类型
     Class<?> paramType1 = setter1.getParameterTypes()[0];
     Class<?> paramType2 = setter2.getParameterTypes()[0];
     if (paramType1.isAssignableFrom(paramType2)) {
+      // param 1 是 param 2 的父类，超类的话：
       return setter2;
     } else if (paramType2.isAssignableFrom(paramType1)) {
       return setter1;
     }
+
     MethodInvoker invoker = new AmbiguousMethodInvoker(setter1,
         MessageFormat.format(
             "Ambiguous setters defined for property ''{0}'' in class ''{1}'' with types ''{2}'' and ''{3}''.",
             property, setter2.getDeclaringClass().getName(), paramType1.getName(), paramType2.getName()));
     setMethods.put(property, invoker);
+
     Type[] paramTypes = TypeParameterResolver.resolveParamTypes(setter1, type);
+
     setTypes.put(property, typeToClass(paramTypes[0]));
     return null;
   }
@@ -255,15 +265,22 @@ public class Reflector {
     setTypes.put(name, typeToClass(paramTypes[0]));
   }
 
+  // Type 转换 Class
   private Class<?> typeToClass(Type src) {
     Class<?> result = null;
+
+    // Class
     if (src instanceof Class) {
       result = (Class<?>) src;
     } else if (src instanceof ParameterizedType) {
+      // ParameterizedType
       result = (Class<?>) ((ParameterizedType) src).getRawType();
     } else if (src instanceof GenericArrayType) {
+      // GenericArrayType
+      // getGenericComponentType
       Type componentType = ((GenericArrayType) src).getGenericComponentType();
       if (componentType instanceof Class) {
+        // ?
         result = Array.newInstance((Class<?>) componentType, 0).getClass();
       } else {
         Class<?> componentClass = typeToClass(componentType);
