@@ -51,7 +51,11 @@ class AutoConstructorTest {
     try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
       final AutoConstructorMapper mapper = sqlSession.getMapper(AutoConstructorMapper.class);
       final Object subject = mapper.getSubject(1);
+
+      // 测试执行语句
+      // final List<BadSubject> testSub = sqlSession.selectList("SELECT * FROM subject",BadSubject.class);
       assertNotNull(subject);
+      // assertNotNull(testSub);
     }
   }
 

@@ -27,7 +27,7 @@ import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 
 /**
  * Builds {@link SqlSession} instances.
- *
+ * SqlSession 构造者模式
  * @author Clinton Begin
  */
 public class SqlSessionFactoryBuilder {
@@ -46,6 +46,7 @@ public class SqlSessionFactoryBuilder {
 
   public SqlSessionFactory build(Reader reader, String environment, Properties properties) {
     try {
+      // 解析 Xml配置文件
       XMLConfigBuilder parser = new XMLConfigBuilder(reader, environment, properties);
       return build(parser.parse());
     } catch (Exception e) {
@@ -88,6 +89,7 @@ public class SqlSessionFactoryBuilder {
     }
   }
 
+  // 创建默认的 SqlSession 工厂
   public SqlSessionFactory build(Configuration config) {
     return new DefaultSqlSessionFactory(config);
   }

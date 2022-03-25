@@ -69,6 +69,7 @@ public class JdbcTransaction implements Transaction {
       if (log.isDebugEnabled()) {
         log.debug("Committing JDBC Connection [" + connection + "]");
       }
+      // 直接使用 JDBC 原生的
       connection.commit();
     }
   }
@@ -79,6 +80,7 @@ public class JdbcTransaction implements Transaction {
       if (log.isDebugEnabled()) {
         log.debug("Rolling back JDBC Connection [" + connection + "]");
       }
+      // 直接使用 JDBC 原生的
       connection.rollback();
     }
   }

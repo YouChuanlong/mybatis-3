@@ -43,6 +43,7 @@ import org.apache.ibatis.session.SqlSession;
  * The default implementation for {@link SqlSession}.
  * Note that this class is not Thread-Safe.
  *
+ * 默认SqlSession，需要注意不是线程安全的
  * @author Clinton Begin
  */
 public class DefaultSqlSession implements SqlSession {

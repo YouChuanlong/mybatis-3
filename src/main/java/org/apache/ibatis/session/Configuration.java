@@ -687,11 +687,14 @@ public class Configuration {
     return newExecutor(transaction, defaultExecutorType);
   }
 
+  // 创建执行器
   public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
+    // MyBatis 默认执行器 SIMPLE
     executorType = executorType == null ? defaultExecutorType : executorType;
     executorType = executorType == null ? ExecutorType.SIMPLE : executorType;
     Executor executor;
-    if (ExecutorType.BATCH == executorType) {
+    if (
+      ExecutorType.BATCH == executorType) {
       executor = new BatchExecutor(this, transaction);
     } else if (ExecutorType.REUSE == executorType) {
       executor = new ReuseExecutor(this, transaction);
@@ -699,6 +702,7 @@ public class Configuration {
       executor = new SimpleExecutor(this, transaction);
     }
     if (cacheEnabled) {
+      // 开启缓存，把刚刚获得执行器包装成带缓存的执行器
       executor = new CachingExecutor(executor);
     }
     executor = (Executor) interceptorChain.pluginAll(executor);
