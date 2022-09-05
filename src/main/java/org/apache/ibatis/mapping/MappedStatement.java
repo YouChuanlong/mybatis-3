@@ -29,11 +29,14 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 语句映射
  * @author Clinton Begin
  */
 public final class MappedStatement {
 
   private String resource;
+
+  // 配置类
   private Configuration configuration;
   private String id;
   private Integer fetchSize;

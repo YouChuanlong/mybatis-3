@@ -147,7 +147,7 @@ public class DefaultSqlSession implements SqlSession {
   }
 
   private <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
-    try {
+    try { // 获取到映射的语句
       MappedStatement ms = configuration.getMappedStatement(statement);
       return executor.query(ms, wrapCollection(parameter), rowBounds, handler);
     } catch (Exception e) {
