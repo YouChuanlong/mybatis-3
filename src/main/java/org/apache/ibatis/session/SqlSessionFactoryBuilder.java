@@ -27,8 +27,18 @@ import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 
 /**
  * Builds {@link SqlSession} instances.
- * SqlSession 构造者模式
  * @author Clinton Begin
+ *
+ * SqlSession 构造者模式
+ * Every MyBatis application centers around an instance of SqlSessionFactory.
+ * 任何一个MyBatis 应用都是为围绕着 SqlSessionFactory 的一个实例
+ *
+ * A SqlSessionFactory instance can be acquired by using the SqlSessionFactoryBuilder.
+ * 一个 SqlSessionFactory 实例获必须通过SqlSessionBuilder 获取
+ *
+ * SqlSessionFactoryBuilder can build a SqlSessionFactory instance from an XML configuration file,
+ * or from a custom prepared instance of the Configuration class.
+ * SqlSessionFactorBuilder 能从 xml 配置 或者 自定义的配置类 构建一个 SqlSessionFactory
  */
 public class SqlSessionFactoryBuilder {
 
@@ -46,9 +56,12 @@ public class SqlSessionFactoryBuilder {
 
   public SqlSessionFactory build(Reader reader, String environment, Properties properties) {
     try {
-      // 解析 Xml配置文件
+      // 构建 XML 构建器
       XMLConfigBuilder parser = new XMLConfigBuilder(reader, environment, properties);
-      return build(parser.parse());
+
+      // 解析成配置类
+      Configuration configuration = parser.parse();
+      return build(configuration);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error building SqlSession.", e);
     } finally {

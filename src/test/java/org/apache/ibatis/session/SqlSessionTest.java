@@ -64,6 +64,9 @@ class SqlSessionTest extends BaseDataTest {
   @BeforeAll
   static void setup() throws Exception {
     createBlogDataSource();
+
+    // 1. 配置文件 IO
+    // 2. 创建 SqlSession 工厂
     final String resource = "org/apache/ibatis/builder/MapperConfig.xml";
     final Reader reader = Resources.getResourceAsReader(resource);
     sqlMapper = new SqlSessionFactoryBuilder().build(reader);
@@ -133,12 +136,14 @@ class SqlSessionTest extends BaseDataTest {
 
   @Test
   void shouldOpenAndClose() {
+    // 测试开启会话，以及关闭
     SqlSession session = sqlMapper.openSession(TransactionIsolationLevel.SERIALIZABLE);
     session.close();
   }
 
   @Test
   void shouldCommitAnUnUsedSqlSession() {
+    // 事务提交
     try (SqlSession session = sqlMapper.openSession(TransactionIsolationLevel.SERIALIZABLE)) {
       session.commit(true);
     }
@@ -146,6 +151,7 @@ class SqlSessionTest extends BaseDataTest {
 
   @Test
   void shouldRollbackAnUnUsedSqlSession() {
+    // 回滚
     try (SqlSession session = sqlMapper.openSession(TransactionIsolationLevel.SERIALIZABLE)) {
       session.rollback(true);
     }
@@ -153,6 +159,7 @@ class SqlSessionTest extends BaseDataTest {
 
   @Test
   void shouldSelectAllAuthors() {
+
     try (SqlSession session = sqlMapper.openSession(TransactionIsolationLevel.SERIALIZABLE)) {
       List<Author> authors = session.selectList("org.apache.ibatis.domain.blog.mappers.AuthorMapper.selectAllAuthors");
       assertEquals(2, authors.size());

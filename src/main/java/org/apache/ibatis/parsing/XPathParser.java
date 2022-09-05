@@ -269,7 +269,7 @@ public class XPathParser {
     }
   }
 
-  // 通用构造，为了代码复用
+  // common code
   private void commonConstructor(boolean validation, Properties variables, EntityResolver entityResolver) {
     this.validation = validation;
     this.entityResolver = entityResolver;
