@@ -20,12 +20,18 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 拦截器链
  * @author Clinton Begin
  */
 public class InterceptorChain {
 
   private final List<Interceptor> interceptors = new ArrayList<>();
 
+  /**
+   * ?
+   * @param target
+   * @return
+   */
   public Object pluginAll(Object target) {
     for (Interceptor interceptor : interceptors) {
       target = interceptor.plugin(target);
@@ -33,10 +39,16 @@ public class InterceptorChain {
     return target;
   }
 
+  /**
+   * 添加拦截器
+   */
   public void addInterceptor(Interceptor interceptor) {
     interceptors.add(interceptor);
   }
 
+  /**
+   * 获取所有的拦截器
+   */
   public List<Interceptor> getInterceptors() {
     return Collections.unmodifiableList(interceptors);
   }

@@ -22,8 +22,16 @@ import java.util.Properties;
  */
 public interface Interceptor {
 
+  /**
+   *
+   */
   Object intercept(Invocation invocation) throws Throwable;
 
+  /**
+   *
+   * @param target
+   * @return
+   */
   default Object plugin(Object target) {
     return Plugin.wrap(target, this);
   }

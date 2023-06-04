@@ -27,8 +27,15 @@ class PluginTest {
   @Test
   void mapPluginShouldInterceptGet() {
     Map map = new HashMap();
+    // int oldIdentityHashCode = System.identityHashCode(map);
     map = (Map) new AlwaysMapPlugin().plugin(map);
+    int proxyObjIdentityHashCode = System.identityHashCode(map);
     assertEquals("Always", map.get("Anything"));
+    // assertNotEquals(oldIdentityHashCode,proxyObjIdentityHashCode);
+
+    // System.identityHashCode(obj):
+    // Returns the same hash code for the given object as would be returned by the default method hashCode(),
+    // whether or not the given object's class overrides hashCode(). The hash code for the null reference is zero.
   }
 
   @Test

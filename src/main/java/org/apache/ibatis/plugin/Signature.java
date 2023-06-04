@@ -21,6 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 表明方法的签名，用来确定具体的方法
  * The annotation that indicate the method signature.
  *
  * @see Intercepts
