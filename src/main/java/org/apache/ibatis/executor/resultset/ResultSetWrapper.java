@@ -52,10 +52,15 @@ public class ResultSetWrapper {
 
   public ResultSetWrapper(ResultSet rs, Configuration configuration) throws SQLException {
     super();
+    // 类型处理器：
     this.typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+    // 原生 ResultSet
     this.resultSet = rs;
+
     final ResultSetMetaData metaData = rs.getMetaData();
+
     final int columnCount = metaData.getColumnCount();
+
     for (int i = 1; i <= columnCount; i++) {
       columnNames.add(configuration.isUseColumnLabel() ? metaData.getColumnLabel(i) : metaData.getColumnName(i));
       jdbcTypes.add(JdbcType.forCode(metaData.getColumnType(i)));

@@ -57,6 +57,8 @@ public class SqlSessionFactoryBuilder {
   public SqlSessionFactory build(Reader reader, String environment, Properties properties) {
     try {
       // 构建 XML 构建器
+      // XMLConfigBuilder extends BaseBuilder
+      // 在 XMLConfigBuilder 的构造器中创建 new Configuration 然后有 BaseBuilder 持有
       XMLConfigBuilder parser = new XMLConfigBuilder(reader, environment, properties);
 
       // 解析成配置类

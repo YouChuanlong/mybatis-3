@@ -28,3 +28,22 @@ INSERT INTO user values(1,'ZhangSan');
 INSERT INTO user values(2,'LiSi');
 INSERT INTO user values(3,'WangWu');
 INSERT INTO user values(4,'ZhaoLiu');
+INSERT INTO user values(5,'RyanYou');
+
+create table car (
+    id  int not null ,
+    plate varchar(20),
+    color varchar(20),
+    user_id int not null
+);
+
+
+INSERT INTO car values(1,'京A88888','red',1);
+INSERT INTO car values(2,'京B88888','blue',1);
+INSERT INTO car values(3,'京C88888','yellow',2);
+INSERT INTO car values(4,'京D88888','green',2);
+INSERT INTO car values(5,'京E88888','black',3);
+INSERT INTO car values(6,'京F88888','white',3);
+INSERT INTO car values(7,'京G88888','red',4);
+INSERT INTO car values(8,'京H88888','blue',4);
+INSERT INTO car values(9,'京I88888','yellow',5);

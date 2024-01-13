@@ -1,7 +1,12 @@
 package com.youchuanlong.test;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import javax.sql.DataSource;
 import org.apache.ibatis.BaseDataTest;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,21 +19,24 @@ import java.io.Reader;
  */
 public class BaseMyBatisTest {
 
-  protected static SqlSessionFactory sqlSessionFactory;
+    private final static String CONFIG_FILE = "com/youchuanlong/example/mybatis-config.xml";
 
+    private final static String SQL_SCRIPT = "com/youchuanlong/example/user_example.sql";
 
+    protected static SqlSessionFactory sqlSessionFactory;
 
+    @BeforeAll
+    static void setUp() throws Exception {
+        try (Reader reader = Resources.getResourceAsReader(CONFIG_FILE)) {
+            sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+        }
 
-  @BeforeAll
-  static void setUp() throws Exception {
-    // create a SqlSessionFactory
-    try (Reader reader = Resources.getResourceAsReader("com/youchuanlong/example/mybatis-config.xml")) {
-      sqlSessionFactory  = new SqlSessionFactoryBuilder().build(reader);
+        assertNotNull(sqlSessionFactory);
+
+        // populate in-memory database
+        Configuration config = sqlSessionFactory.getConfiguration();
+        Environment env = config.getEnvironment();
+        DataSource ds = env.getDataSource();
+        BaseDataTest.runScript(ds, SQL_SCRIPT);
     }
-
-    // populate in-memory database
-    BaseDataTest.runScript(sqlSessionFactory.getConfiguration().getEnvironment().getDataSource(),
-                           "com/youchuanlong/example/user_example.sql");
-  }
-
 }

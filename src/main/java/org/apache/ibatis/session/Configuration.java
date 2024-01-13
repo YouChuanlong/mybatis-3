@@ -147,13 +147,13 @@ public class Configuration {
    * @see <a href='https://github.com/mybatis/old-google-code-issues/issues/300'>Issue 300 (google code)</a>
    */
   protected Class<?> configurationFactory;
-
+  // 所有的 Mapper 的代理对象都会注册进来
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
   protected final InterceptorChain interceptorChain = new InterceptorChain();
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry(this);
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
-
+  // MappedStatement 很重要
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
@@ -694,14 +694,18 @@ public class Configuration {
     executorType = executorType == null ? defaultExecutorType : executorType;
     executorType = executorType == null ? ExecutorType.SIMPLE : executorType;
     Executor executor;
-    if (
-      ExecutorType.BATCH == executorType) {
+    if (ExecutorType.BATCH == executorType) {
+      // 批处执行器
       executor = new BatchExecutor(this, transaction);
     } else if (ExecutorType.REUSE == executorType) {
+      // 复用执行器
       executor = new ReuseExecutor(this, transaction);
     } else {
+      // 基础执行器
       executor = new SimpleExecutor(this, transaction);
     }
+
+
     if (cacheEnabled) {
       // 开启缓存，把刚刚获得执行器包装成带缓存的执行器
       executor = new CachingExecutor(executor);

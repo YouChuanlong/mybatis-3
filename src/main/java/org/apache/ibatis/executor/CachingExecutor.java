@@ -33,6 +33,8 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 /**
+ * 二级缓存的实现类，继承了 BaseExecutor 抽象类，是所有缓存 Executor 的基类
+ * 代理模式，委托给 delegate 属性实现
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
@@ -93,6 +95,7 @@ public class CachingExecutor implements Executor {
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql)
       throws SQLException {
+
     Cache cache = ms.getCache();
     if (cache != null) {
       flushCacheIfRequired(ms);
@@ -107,6 +110,7 @@ public class CachingExecutor implements Executor {
         return list;
       }
     }
+    // 实际执行的还是 BaseExecutor.query() 方法，doQuery 方法是抽象方法，由子类实现
     return delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
 

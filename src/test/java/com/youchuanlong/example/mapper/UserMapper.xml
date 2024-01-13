@@ -1,0 +1,37 @@
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.youchuanlong.example.mapper.UserMapper">
+    <resultMap id="UserResultMap" type="com.youchuanlong.example.model.entity.UserEntity" >
+        <id property="id" column="id" />
+        <result property="username" column="username" />
+
+
+        <association property="car" column="id"
+          javaType="com.youchuanlong.example.model.entity.CarEntity"
+          select="com.youchuanlong.example.mapper.CarMapper.selectCarByUserId"
+          foreignColumn="user_id">
+        </association>
+    </resultMap>
+    <select id="selectUserAll" resultType="com.youchuanlong.example.model.entity.UserEntity">
+      SELECT * FROM user
+    </select>
+
+    <select id="selectById" resultType="com.youchuanlong.example.model.entity.UserEntity" parameterType="Long">
+      SELECT * FROM user WHERE id = #{id}
+    </select>
+
+    <select id="selectByUser" resultType="com.youchuanlong.example.model.entity.UserEntity">
+        SELECT * FROM user
+        <where>
+            <if test="id != null"> id = #{id} </if>
+            <if test="username != null"> and username = #{username} </if>
+        </where>
+    </select>
+
+    <select id="selectUserAndCars" resultMap="UserResultMap">
+        select * from user
+    </select>
+
+</mapper>
