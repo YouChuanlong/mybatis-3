@@ -184,13 +184,19 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+
+  // MyBatis 插件的解析 <plugins></plugins>
   private void pluginElement(XNode parent) throws Exception {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
         String interceptor = child.getStringAttribute("interceptor");
         Properties properties = child.getChildrenAsProperties();
+
+        // 将拦截器实例化
         Interceptor interceptorInstance = (Interceptor) resolveClass(interceptor).getDeclaredConstructor().newInstance();
         interceptorInstance.setProperties(properties);
+
+        // 加入配置类中
         configuration.addInterceptor(interceptorInstance);
       }
     }
@@ -388,6 +394,7 @@ public class XMLConfigBuilder extends BaseBuilder {
               mapperParser.parse();
             }
           } else if (resource == null && url == null && mapperClass != null) {
+            // note: 到这里之前 Mapper Clazz 还没被加载，自此开始被加载：
             Class<?> mapperInterface = Resources.classForName(mapperClass);
             configuration.addMapper(mapperInterface);
           } else {

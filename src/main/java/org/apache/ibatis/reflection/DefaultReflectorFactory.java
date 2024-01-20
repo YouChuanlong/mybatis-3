@@ -48,6 +48,7 @@ public class DefaultReflectorFactory implements ReflectorFactory {
   public Reflector findForClass(Class<?> type) {
     if (classCacheEnabled) {
       // synchronized (type) removed see issue #461
+      // 在此解析: Reflector(Class clazz)
       return MapUtil.computeIfAbsent(reflectorMap, type, Reflector::new);
     } else {
       return new Reflector(type);

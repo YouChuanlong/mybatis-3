@@ -54,6 +54,7 @@ public class MapperMethod {
     this.method = new MethodSignature(config, mapperInterface, method);
   }
 
+  // 所有 Mapper 方法都是会走这里的
   public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
     switch (command.getType()) {
@@ -77,12 +78,16 @@ public class MapperMethod {
           executeWithResultHandler(sqlSession, args);
           result = null;
         } else if (method.returnsMany()) {
+          // 返回多结果
           result = executeForMany(sqlSession, args);
         } else if (method.returnsMap()) {
+          // 返回 Map
           result = executeForMap(sqlSession, args);
         } else if (method.returnsCursor()) {
+          // ?
           result = executeForCursor(sqlSession, args);
         } else {
+          // 单结果
           Object param = method.convertArgsToSqlCommandParam(args);
           result = sqlSession.selectOne(command.getName(), param);
           if (method.returnsOptional()
@@ -272,6 +277,7 @@ public class MapperMethod {
     }
   }
 
+  // 方法签名，放置 mapper 方法的一些信息
   public static class MethodSignature {
 
     private final boolean returnsMany;

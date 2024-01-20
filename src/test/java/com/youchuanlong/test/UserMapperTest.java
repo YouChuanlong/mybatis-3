@@ -43,11 +43,14 @@ public class UserMapperTest extends BaseMyBatisTest {
 
     @Test
     public void testSelectById() throws IOException {
+        // MapperProxy: 对象,MapperMethodInvoker -> MapperMethod: Mapper 的方法
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             UserMapper mapper = sqlSession.getMapper(UserMapper.class);
             UserEntity user = mapper.selectById(1L);
             assertNotNull(user);
-            assertEquals("RyanYou", user.getUsername());
+            assertEquals("ZhangSan", user.getUsername());
+            UserMapper mapper1 = sqlSession.getMapper(UserMapper.class);
+            assertNotEquals(mapper,mapper1);
         }
     }
 
@@ -81,6 +84,7 @@ public class UserMapperTest extends BaseMyBatisTest {
             }
         }
     }
+
 
 
 }

@@ -81,9 +81,13 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
       if (Object.class.equals(method.getDeclaringClass())) {
+        // 调用代理对象的方法如果是 Object 类的方法，直接调用，像是 equals、hashCode、toString 等方法
         return method.invoke(this, args);
       } else {
-        return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
+        // return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
+
+        MapperMethodInvoker mapperMethodInvoker = cachedInvoker(method);
+        return mapperMethodInvoker.invoke(proxy,method,args,sqlSession);
       }
     } catch (Throwable t) {
       throw ExceptionUtil.unwrapThrowable(t);
@@ -92,7 +96,9 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
   private MapperMethodInvoker cachedInvoker(Method method) throws Throwable {
     try {
-      return MapUtil.computeIfAbsent(methodCache, method, m -> {
+      // 如果 methodCache 不存在，就执行 computeIfAbsent 方法，创建 MapperMethodInvoker 对象
+      return MapUtil.computeIfAbsent(methodCache, method, (m) -> {
+        // 是否默认方法
         if (m.isDefault()) {
           try {
             if (privateLookupInMethod == null) {
@@ -105,7 +111,9 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
             throw new RuntimeException(e);
           }
         } else {
-          return new PlainMethodInvoker(new MapperMethod(mapperInterface, method, sqlSession.getConfiguration()));
+          // 非默认方法，创建 PlainMethodInvoker 对象
+          MapperMethod mm = new MapperMethod(mapperInterface, method, sqlSession.getConfiguration());
+          return new PlainMethodInvoker(mm);
         }
       });
     } catch (RuntimeException re) {
